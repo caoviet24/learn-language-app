@@ -1,0 +1,30 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+## husky task runner examples -------------------
+## Note : for local installation use 'dotnet' prefix. e.g. 'dotnet husky'
+
+## run all tasks
+#husky run
+
+### run all tasks with group: 'group-name'
+#husky run --group group-name
+
+## run task with name: 'task-name'
+#husky run --name task-name
+
+## pass hook arguments to task
+#husky run --args "$1" "$2"
+
+## or put your custom commands -------------------
+echo 'Running pre-push checks...'
+
+# Run comprehensive tests before pushing
+echo 'Running all tests...'
+dotnet test --verbosity normal
+
+# Run security scan if available
+echo 'Running security checks...'
+dotnet list package --vulnerable 2>/dev/null || echo 'Security scan tool not available'
+
+echo 'All pre-push checks passed!'

@@ -1,0 +1,40 @@
+{
+   "$schema": "https://alirezanet.github.io/Husky.Net/schema.json",
+   "tasks": [
+      {
+         "name": "restore",
+         "group": "build",
+         "command": "dotnet",
+         "args": [ "restore" ],
+         "include": [ "**/*.csproj", "**/*.sln" ]
+      },
+      {
+         "name": "build",
+         "group": "build",
+         "command": "dotnet",
+         "args": [ "build", "--no-restore" ],
+         "include": [ "**/*.cs", "**/*.csproj" ]
+      },
+      {
+         "name": "test",
+         "group": "test",
+         "command": "dotnet",
+         "args": [ "test", "--no-build", "--verbosity", "normal" ],
+         "include": [ "**/*.cs", "**/test/**" ]
+      },
+      {
+         "name": "format-check",
+         "group": "format",
+         "command": "dotnet",
+         "args": [ "format", "--verify-no-changes", "--verbosity", "normal" ],
+         "include": [ "**/*.cs" ]
+      },
+      {
+         "name": "security-scan",
+         "group": "security",
+         "command": "dotnet",
+         "args": [ "list", "package", "--vulnerable" ],
+         "include": [ "**/*.csproj" ]
+      }
+   ]
+}

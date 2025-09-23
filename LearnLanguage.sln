@@ -1,0 +1,53 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B8B7E1AA-7B0B-4A8B-9B0B-7B0B7B0B7B0B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{C8C7E1AA-7C0C-4C8C-9C0C-7C0C7C0C7C0C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnLanguage.Domain", "src\LearnLanguage.Domain\LearnLanguage.Domain.csproj", "{A1A1A1A1-A1A1-A1A1-A1A1-A1A1A1A1A1A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnLanguage.Application", "src\LearnLanguage.Application\LearnLanguage.Application.csproj", "{B2B2B2B2-B2B2-B2B2-B2B2-B2B2B2B2B2B2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnLanguage.Infrastructure", "src\LearnLanguage.Infrastructure\LearnLanguage.Infrastructure.csproj", "{C3C3C3C3-C3C3-C3C3-C3C3-C3C3C3C3C3C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnLanguage.API", "src\LearnLanguage.API\LearnLanguage.API.csproj", "{D4D4D4D4-D4D4-D4D4-D4D4-D4D4D4D4D4D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LearnLanguage.Application.Tests", "tests\LearnLanguage.Application.Tests\LearnLanguage.Application.Tests.csproj", "{E5E5E5E5-E5E5-E5E5-E5E5-E5E5E5E5E5E5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A1A1A1A1-A1A1-A1A1-A1A1-A1A1A1A1A1A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1A1A1A1-A1A1-A1A1-A1A1-A1A1A1A1A1A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1A1A1A1-A1A1-A1A1-A1A1-A1A1A1A1A1A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1A1A1A1-A1A1-A1A1-A1A1-A1A1A1A1A1A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2B2B2B2-B2B2-B2B2-B2B2-B2B2B2B2B2B2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2B2B2B2-B2B2-B2B2-B2B2-B2B2B2B2B2B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2B2B2B2-B2B2-B2B2-B2B2-B2B2B2B2B2B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2B2B2B2-B2B2-B2B2-B2B2-B2B2B2B2B2B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3C3C3C3-C3C3-C3C3-C3C3-C3C3C3C3C3C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3C3C3C3-C3C3-C3C3-C3C3-C3C3C3C3C3C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3C3C3C3-C3C3-C3C3-C3C3-C3C3C3C3C3C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3C3C3C3-C3C3-C3C3-C3C3-C3C3C3C3C3C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4D4D4D4-D4D4-D4D4-D4D4-D4D4D4D4D4D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4D4D4D4-D4D4-D4D4-D4D4-D4D4D4D4D4D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4D4D4D4-D4D4-D4D4-D4D4-D4D4D4D4D4D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4D4D4D4-D4D4-D4D4-D4D4-D4D4D4D4D4D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5E5E5E5-E5E5-E5E5-E5E5-E5E5E5E5E5E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5E5E5E5-E5E5-E5E5-E5E5-E5E5E5E5E5E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5E5E5E5-E5E5-E5E5-E5E5-E5E5E5E5E5E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5E5E5E5-E5E5-E5E5-E5E5-E5E5E5E5E5E5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A1A1A1A1-A1A1-A1A1-A1A1-A1A1A1A1A1A1} = {B8B7E1AA-7B0B-4A8B-9B0B-7B0B7B0B7B0B}
+		{B2B2B2B2-B2B2-B2B2-B2B2-B2B2B2B2B2B2} = {B8B7E1AA-7B0B-4A8B-9B0B-7B0B7B0B7B0B}
+		{C3C3C3C3-C3C3-C3C3-C3C3-C3C3C3C3C3C3} = {B8B7E1AA-7B0B-4A8B-9B0B-7B0B7B0B7B0B}
+		{D4D4D4D4-D4D4-D4D4-D4D4-D4D4D4D4D4D4} = {B8B7E1AA-7B0B-4A8B-9B0B-7B0B7B0B7B0B}
+		{E5E5E5E5-E5E5-E5E5-E5E5-E5E5E5E5E5E5} = {C8C7E1AA-7C0C-4C8C-9C0C-7C0C7C0C7C0C}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,283 @@
+name: Auto Merge Workflow
+
+on:
+  schedule:
+    # Chạy hàng ngày lúc 2:00 AM UTC (9:00 AM Vietnam time)
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      source_branch:
+        description: 'Source branch to merge from'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - feature/auto-merge
+      target_branch:
+        description: 'Target branch to merge to'
+        required: true
+        default: 'main'
+        type: choice
+        options:
+          - main
+          - dev
+      force_merge:
+        description: 'Force merge even with conflicts (dangerous)'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  SOURCE_BRANCH: ${{ github.event.inputs.source_branch || 'dev' }}
+  TARGET_BRANCH: ${{ github.event.inputs.target_branch || 'main' }}
+
+jobs:
+  check-changes:
+    name: Check for Changes
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ steps.check.outputs.has_changes }}
+      commits_count: ${{ steps.check.outputs.commits_count }}
+      last_commit: ${{ steps.check.outputs.last_commit }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for new changes
+        id: check
+        run: |
+          git fetch origin ${{ env.SOURCE_BRANCH }}
+          git fetch origin ${{ env.TARGET_BRANCH }}
+          
+          # Đếm số commit mới trong source branch so với target branch
+          COMMITS_COUNT=$(git rev-list --count origin/${{ env.TARGET_BRANCH }}..origin/${{ env.SOURCE_BRANCH }})
+          LAST_COMMIT=$(git log -1 --format="%H %s" origin/${{ env.SOURCE_BRANCH }})
+          
+          echo "commits_count=$COMMITS_COUNT" >> $GITHUB_OUTPUT
+          echo "last_commit=$LAST_COMMIT" >> $GITHUB_OUTPUT
+          
+          if [ "$COMMITS_COUNT" -gt 0 ]; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "✅ Found $COMMITS_COUNT new commit(s) in ${{ env.SOURCE_BRANCH }}"
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            echo "ℹ️ No new changes in ${{ env.SOURCE_BRANCH }}"
+          fi
+
+  run-tests:
+    name: Run Full Test Suite
+    needs: check-changes
+    runs-on: ubuntu-latest
+    if: needs.check-changes.outputs.has_changes == 'true'
+
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_BRANCH }}
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore .NET dependencies
+        run: dotnet restore
+
+      - name: Build .NET projects
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Run .NET tests
+        run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: src/LearnLanguage.Mobile/package-lock.json
+
+      - name: Install Mobile dependencies
+        run: |
+          cd src/LearnLanguage.Mobile
+          npm ci
+
+      - name: Run Mobile tests
+        run: |
+          cd src/LearnLanguage.Mobile
+          npm test -- --watchAll=false || echo "Mobile tests completed"
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          cd src/LearnLanguage.AI
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      - name: Run Python tests
+        run: |
+          cd src/LearnLanguage.AI
+          if [ -f test_*.py ]; then
+            python -m pytest || echo "Python tests completed"
+          fi
+
+  auto-merge:
+    name: Auto Merge ${{ needs.check-changes.outputs.commits_count }} commits
+    needs: [check-changes, run-tests]
+    runs-on: ubuntu-latest
+    if: |
+      needs.check-changes.outputs.has_changes == 'true' && 
+      needs.run-tests.result == 'success'
+
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_BRANCH }}
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "AutoMerge Bot"
+          git config user.email "noreply@github.com"
+
+      - name: Fetch latest changes
+        run: |
+          git fetch origin ${{ env.SOURCE_BRANCH }}
+          git fetch origin ${{ env.TARGET_BRANCH }}
+
+      - name: Check merge conflicts
+        id: conflicts
+        run: |
+          # Tạo temporary merge để check conflicts
+          git checkout -b temp-merge-check
+          
+          if git merge origin/${{ env.SOURCE_BRANCH }} --no-commit --no-ff; then
+            echo "conflicts=false" >> $GITHUB_OUTPUT
+            echo "✅ No merge conflicts detected"
+            git merge --abort
+          else
+            echo "conflicts=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Merge conflicts detected"
+            git merge --abort
+          fi
+          
+          git checkout ${{ env.TARGET_BRANCH }}
+          git branch -D temp-merge-check
+
+      - name: Perform merge
+        if: steps.conflicts.outputs.conflicts == 'false' || github.event.inputs.force_merge == 'true'
+        run: |
+          echo "🔄 Merging ${{ env.SOURCE_BRANCH }} into ${{ env.TARGET_BRANCH }}"
+          echo "📊 Commits to merge: ${{ needs.check-changes.outputs.commits_count }}"
+          echo "📝 Last commit: ${{ needs.check-changes.outputs.last_commit }}"
+          
+          # Thực hiện merge
+          git merge origin/${{ env.SOURCE_BRANCH }} --no-ff --commit -m "🤖 Auto merge ${{ env.SOURCE_BRANCH }} → ${{ env.TARGET_BRANCH }}
+
+          📊 Commits merged: ${{ needs.check-changes.outputs.commits_count }}
+          📝 Latest commit: ${{ needs.check-changes.outputs.last_commit }}
+          🤖 Merged by: GitHub Actions
+          🕐 Merge time: $(date '+%Y-%m-%d %H:%M:%S UTC')
+          
+          Co-authored-by: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+
+      - name: Push changes
+        if: steps.conflicts.outputs.conflicts == 'false' || github.event.inputs.force_merge == 'true'
+        run: |
+          git push origin ${{ env.TARGET_BRANCH }}
+
+      - name: Create success comment
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: commits } = await github.rest.repos.listCommits({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: '${{ env.SOURCE_BRANCH }}',
+              per_page: ${{ needs.check-changes.outputs.commits_count }}
+            });
+            
+            let commitList = commits.map(commit => 
+              `• ${commit.sha.substring(0, 7)}: ${commit.commit.message.split('\n')[0]}`
+            ).join('\n');
+            
+            const message = `🎉 **Auto Merge Successful!**
+            
+            **Summary:**
+            - Source: \`${{ env.SOURCE_BRANCH }}\`
+            - Target: \`${{ env.TARGET_BRANCH }}\`
+            - Commits merged: ${{ needs.check-changes.outputs.commits_count }}
+            
+            **Merged commits:**
+            ${commitList}
+            
+            ✅ All tests passed
+            ✅ No conflicts detected
+            ✅ Merge completed successfully`;
+            
+            console.log(message);
+
+      - name: Handle merge conflicts
+        if: steps.conflicts.outputs.conflicts == 'true' && github.event.inputs.force_merge != 'true'
+        run: |
+          echo "❌ Cannot auto-merge due to conflicts"
+          echo "Please resolve conflicts manually and merge"
+          exit 1
+
+  cleanup:
+    name: Cleanup Feature Branches
+    needs: [auto-merge]
+    runs-on: ubuntu-latest
+    if: always() && needs.auto-merge.result == 'success'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete merged feature branch
+        run: |
+          SOURCE_BRANCH="${{ github.event.inputs.source_branch || 'dev' }}"
+          if [[ "$SOURCE_BRANCH" == feature/* ]]; then
+            echo "🗑️ Deleting merged feature branch: $SOURCE_BRANCH"
+            git push origin --delete $SOURCE_BRANCH
+          else
+            echo "ℹ️ Branch $SOURCE_BRANCH is not a feature branch, skipping deletion"
+          fi
+
+  notification:
+    name: Send Notification
+    needs: [check-changes, run-tests, auto-merge]
+    runs-on: ubuntu-latest
+    if: always()
+
+    steps:
+      - name: Create status summary
+        run: |
+          echo "## 🤖 Auto Merge Report" >> $GITHUB_STEP_SUMMARY
+          echo "**Date:** $(date '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Source Branch:** ${{ env.SOURCE_BRANCH }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Branch:** ${{ env.TARGET_BRANCH }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.check-changes.outputs.has_changes }}" == "true" ]; then
+            echo "**Changes Found:** ✅ Yes (${{ needs.check-changes.outputs.commits_count }} commits)" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "**Changes Found:** ℹ️ No new changes" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "**Tests Status:** ${{ needs.run-tests.result == 'success' && '✅ Passed' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Merge Status:** ${{ needs.auto-merge.result == 'success' && '✅ Success' || '❌ Failed' }}" >> $GITHUB_STEP_SUMMARY

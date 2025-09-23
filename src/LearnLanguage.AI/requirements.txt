@@ -1,0 +1,8 @@
+openai
+flask
+huggingface_hub
+flask-cors
+python-dotenv
+transformers
+torch
+scipy

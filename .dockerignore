@@ -1,0 +1,75 @@
+# Git
+.git
+.gitignore
+README.md
+
+# Documentation
+*.md
+
+# Docker
+Dockerfile
+.dockerignore
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.docstates
+_ReSharper*/
+*.sln.docstates
+*.userprefs
+*.pidb
+*.booproj
+**/packages/*
+!**/packages/build/
+*.nuget.props
+*.nuget.targets
+project.lock.json
+*.nuget.cache
+
+# Visual Studio
+.vs/
+*.vscode/
+*.vspx
+*.sap
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Node modules (if any)
+node_modules/
+
+# Logs
+logs
+*.log
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
