@@ -1,0 +1,60 @@
+{
+  "common": {
+    "practice": "Practice",
+    "languages": "Languages",
+    "practice_modes": "Practice Modes",
+    "select_language": "Select Language",
+    "select_practice_mode": "Select Practice Mode",
+    "improve_skills": "Improve your language skills",
+    "practice_stats": "Practice Statistics"
+  },
+  "practice_modes": {
+    "translation": {
+      "title": "Translation",
+      "subtitle": "Translation Practice",
+      "description": "Translate from English to Vietnamese and vice versa"
+    },
+    "listen_write": {
+      "title": "Listen & Write",
+      "subtitle": "Listen & Write",
+      "description": "Listen to audio and write down what you hear"
+    },
+    "read_pronounce": {
+      "title": "Read & Pronounce",
+      "subtitle": "Read & Pronounce",
+      "description": "Read text and improve pronunciation"
+    },
+    "vocabulary": {
+      "title": "Vocabulary",
+      "subtitle": "Vocabulary Practice",
+      "description": "Learn and practice new vocabulary"
+    }
+  },
+  "languages": {
+    "en": "English",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "zh": "Chinese",
+    "fr": "French",
+    "de": "German",
+    "vi": "Vietnamese"
+  },
+  "stats": {
+    "practice_sessions": "Practice Sessions",
+    "listening_times": "Listening Times",
+    "words_learned": "Words Learned"
+  },
+  "tabs": {
+    "learn": "Learn",
+    "vocabulary": "Vocabulary",
+    "practice": "Practice",
+    "test_api": "Test API",
+    "settings": "Settings"
+  },
+  "settings": {
+    "account": "Account",
+    "privacy_security": "Privacy & Security",
+    "notifications": "Notifications",
+    "logout": "Log Out"
+  }
+}

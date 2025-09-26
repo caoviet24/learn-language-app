@@ -1,0 +1,60 @@
+{
+  "common": {
+    "practice": "Luyện tập",
+    "languages": "Ngôn ngữ",
+    "practice_modes": "Hình thức luyện tập",
+    "select_language": "Chọn ngôn ngữ",
+    "select_practice_mode": "Chọn hình thức luyện tập",
+    "improve_skills": "Cải thiện kỹ năng ngôn ngữ của bạn",
+    "practice_stats": "Thành tích luyện tập"
+  },
+  "practice_modes": {
+    "translation": {
+      "title": "Dịch thuật",
+      "subtitle": "Dịch thuật",
+      "description": "Dịch từ tiếng Anh sang tiếng Việt và ngược lại"
+    },
+    "listen_write": {
+      "title": "Nghe và Viết lại",
+      "subtitle": "Nghe & Viết",
+      "description": "Nghe âm thanh và viết lại nội dung đã nghe"
+    },
+    "read_pronounce": {
+      "title": "Đọc và Phát âm",
+      "subtitle": "Đọc & Phát âm",
+      "description": "Đọc văn bản và cải thiện phát âm"
+    },
+    "vocabulary": {
+      "title": "Từ vựng",
+      "subtitle": "Từ vựng",
+      "description": "Học và luyện tập từ vựng mới"
+    }
+  },
+  "languages": {
+    "en": "Tiếng Anh",
+    "ja": "Tiếng Nhật",
+    "ko": "Tiếng Hàn",
+    "zh": "Tiếng Trung",
+    "fr": "Tiếng Pháp",
+    "de": "Tiếng Đức",
+    "vi": "Tiếng Việt"
+  },
+  "stats": {
+    "practice_sessions": "Bài luyện tập",
+    "listening_times": "Lần nghe",
+    "words_learned": "Từ đã học"
+  },
+  "tabs": {
+    "learn": "Học",
+    "vocabulary": "Từ vựng",
+    "practice": "Luyện tập",
+    "test_api": "Test API",
+    "settings": "Cài đặt"
+  },
+  "settings": {
+    "account": "Tài khoản",
+    "privacy_security": "Quyền riêng tư & Bảo mật",
+    "notifications": "Thông báo",
+    "logout": "Đăng xuất"
+  }
+}

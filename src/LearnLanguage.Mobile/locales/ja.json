@@ -1,0 +1,60 @@
+{
+  "common": {
+    "practice": "練習",
+    "languages": "言語",
+    "practice_modes": "練習モード",
+    "select_language": "言語を選択",
+    "select_practice_mode": "練習モードを選択",
+    "improve_skills": "言語スキルを向上させる",
+    "practice_stats": "練習統計"
+  },
+  "practice_modes": {
+    "translation": {
+      "title": "翻訳",
+      "subtitle": "翻訳練習",
+      "description": "英語から日本語、日本語から英語への翻訳"
+    },
+    "listen_write": {
+      "title": "リスニング&ライティング",
+      "subtitle": "リスニング & ライティング",
+      "description": "音声を聞いて内容を書き取る"
+    },
+    "read_pronounce": {
+      "title": "読解&発音",
+      "subtitle": "読解 & 発音",
+      "description": "テキストを読み、発音を改善する"
+    },
+    "vocabulary": {
+      "title": "語彙",
+      "subtitle": "語彙練習",
+      "description": "新しい語彙を学び、練習する"
+    }
+  },
+  "languages": {
+    "en": "英語",
+    "ja": "日本語",
+    "ko": "韓国語",
+    "zh": "中国語",
+    "fr": "フランス語",
+    "de": "ドイツ語",
+    "vi": "ベトナム語"
+  },
+  "stats": {
+    "practice_sessions": "練習セッション",
+    "listening_times": "リスニング回数",
+    "words_learned": "学んだ単語"
+  },
+  "tabs": {
+    "learn": "学習",
+    "vocabulary": "語彙",
+    "practice": "練習",
+    "test_api": "APIテスト",
+    "settings": "設定"
+  },
+  "settings": {
+    "account": "アカウント",
+    "privacy_security": "プライバシーとセキュリティ",
+    "notifications": "通知",
+    "logout": "ログアウト"
+  }
+}
