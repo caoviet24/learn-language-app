@@ -1,5 +1,6 @@
 import React, { memo, useCallback } from 'react'
 import { Text, TextInput, View } from 'react-native'
+import SentenceWithVoice from '@/components/SentenceWithVoice';
 
 interface TranslationLessonProps {
     question: string;
@@ -24,9 +25,7 @@ const TranslationLesson = memo(function TranslationLesson({
     return (
         <View className="gap-4">
             <View className="bg-slate-800 p-6 rounded-2xl">
-                <Text className="text-white text-xl leading-relaxed">
-                    {question}
-                </Text>
+                <SentenceWithVoice sentence={question} />
             </View>
 
             <TextInput

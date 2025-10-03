@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using LearnLanguage.Infrastructure.Data.Write;
 using LearnLanguage.Infrastructure.Data.Read;
-using LearnLanguage.Infrastructure.ExternalServices.Kafka;
 using LearnLanguage.Infrastructure.ExternalServices.Email;
 using LearnLanguage.Infrastructure.InternalServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -16,7 +15,10 @@ using LearnLanguage.Infrastructure.ExternalServices.Jwt;
 using LearnLanguage.Infrastructure.Data.WriteDb.Interceptor;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using LearnLanguage.Domain.Entities;
-using LearnLanguage.Infrastructure.ExternalServices.Kafka.EventsHandler;
+using LearnLanguage.Infrastructure.ExternalServices.MassTransit;
+using LearnLanguage.Infrastructure.ExternalServices.MassTransit.Consumers;
+using LearnLanguage.Application.Events;
+using MassTransit;
 
 namespace LearnLanguage.Infrastructure;
 
@@ -41,7 +43,6 @@ public static class DependencyInjection
         services.Configure<JwtConfiguration>(options => configuration.GetSection(JwtConfiguration.SectionName).Bind(options));
         services.Configure<KafkaConfiguration>(options => configuration.GetSection(KafkaConfiguration.SectionName).Bind(options));
         services.Configure<EmailConfiguration>(options => configuration.GetSection(EmailConfiguration.SectionName).Bind(options));
-        services.Configure<HuggingFaceConfiguration>(options => configuration.GetSection(HuggingFaceConfiguration.SectionName).Bind(options));
 
         //JWT
         services.AddAuthentication(opt =>
@@ -76,10 +77,49 @@ public static class DependencyInjection
         services.AddScoped<IReadDbContext, ReadDbContext>();
         services.AddScoped<IUser, GetCurrentUser>();
 
+        // Register MassTransit with Kafka Rider
+        services.AddMassTransit(x =>
+        {
+            x.AddConsumer<UserRegisteredEventConsumer>();
+            
+            // Use In-Memory transport for the bus
+            x.UsingInMemory((context, cfg) =>
+            {
+                cfg.ConfigureEndpoints(context);
+            });
+
+            // Add Kafka as a rider only if enabled
+            var kafkaConfig = configuration.GetSection(KafkaConfiguration.SectionName).Get<KafkaConfiguration>()
+                ?? new KafkaConfiguration();
+            
+            if (kafkaConfig.Enabled)
+            {
+                x.AddRider(rider =>
+                {
+                    rider.AddConsumer<UserRegisteredEventConsumer>();
+                    
+                    rider.AddProducer<UserRegisteredEvent>("user-registered-events");
+        
+                    rider.UsingKafka((context, k) =>
+                    {
+                        k.Host(kafkaConfig.BootstrapServers);
+        
+                        k.TopicEndpoint<UserRegisteredEvent>("user-registered-events", kafkaConfig.GroupId, e =>
+                        {
+                            e.ConfigureConsumer<UserRegisteredEventConsumer>(context);
+                            
+                            // Configure consumer settings
+                            e.AutoOffsetReset = Confluent.Kafka.AutoOffsetReset.Earliest;
+                            e.CheckpointInterval = TimeSpan.FromSeconds(10);
+                            e.CheckpointMessageCount = 5000;
+                        });
+                    });
+                });
+            }
+        });
+
         // Register external services
-        services.AddScoped<UserRegisteredEventHandler>();
-        services.AddHostedService<KafkaConsumerService>();
-        services.AddSingleton<IEventPublisher, KafkaProducerService>();
+        services.AddScoped<IEventPublisher, MassTransitEventPublisher>();
         services.AddScoped<IEmailService, EmailService>();
         services.AddScoped<IJwtService, JwtService>();
 

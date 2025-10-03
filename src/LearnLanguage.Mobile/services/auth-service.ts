@@ -1,7 +1,9 @@
 import axiosJWT from '@/configs/axios';
+import { baseUrl } from '@/configs/baseUrl';
+import axios from 'axios';
 
 async function login({email, password}: { email: string; password: string }) {
-    const res = await axiosJWT.post('/auth/login', {
+    const res = await axios.post(`${baseUrl}/auth/login`, {
         email,
         password
     });
@@ -10,7 +12,7 @@ async function login({email, password}: { email: string; password: string }) {
 
 
 async function register({firstName, lastName, email, password}: { firstName: string; lastName: string; email: string; password: string }) {
-    await new Promise((resolve) => setTimeout(resolve, 4000)); // Simulate network delay
+    await new Promise((resolve) => setTimeout(resolve, 4000));
     const res = await axiosJWT.post('/auth/register', {
         firstName,
         lastName,
@@ -21,9 +23,8 @@ async function register({firstName, lastName, email, password}: { firstName: str
 }
 
 async function getMyInfo() {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
     const res = await axiosJWT.get('/auth/me');
-    console.log('getMyInfo response:', res.data);
-    
     return res.data;
 }
 

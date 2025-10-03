@@ -28,20 +28,24 @@ This directory contains the AI components for the LearnLanguage application, inc
 
 To run the Flask API server:
 ```bash
-python openai_client.py
+python server.py
 ```
 
 The server will start on `http://localhost:5000`.
 
 ## API Endpoints
 
-- POST `/generate` - Generate language learning questions
+- POST `/generate-question` - Generate language learning questions
 - POST `/compare` - Compare sentence similarity
 - POST `/text-to-speech` - Convert text to speech and return URL to audio file
+- POST `/speech-to-text` - Convert speech to text using Whisper model
+- POST `/translate` - Translate words/phrases between languages
 
 ## Components
 
-- `openai_client.py` - Flask API server with OpenAI/OpenRouter integration
-- `text-to-speech.py` - Text-to-speech functionality using Hugging Face models
+- `server.py` - Flask API server with OpenAI/OpenRouter integration
+- `translation_service.py` - Translation functionality using Hugging Face MarianMT models
+- `tts_service.py` - Text-to-speech functionality using Hugging Face models
+- `stt_service.py` - Speech-to-text functionality using Whisper models
 - `.env` - Environment variables (example file)
 - `requirements.txt` - Python package dependencies

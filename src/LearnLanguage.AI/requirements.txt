@@ -1,8 +1,11 @@
 openai
 flask
-huggingface_hub
 flask-cors
 python-dotenv
+huggingface_hub
 transformers
 torch
 scipy
+faster-whisper
+numpy
+requests

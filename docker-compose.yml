@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+  # Kafka messaging system
   kafka:
     image: bitnami/kafka:latest
     hostname: kafka
@@ -10,14 +11,14 @@ services:
       - "9094:9094"
     environment:
       # KRaft mode configuration
-      KAFKA_ENABLE_KRAFT: yes
+      KAFKA_ENABLE_KRAFT: "yes"
       KAFKA_CFG_PROCESS_ROLES: broker,controller
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
       KAFKA_CFG_NODE_ID: 1
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       
       # Listeners configuration
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
       KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
@@ -27,7 +28,7 @@ services:
       KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_CFG_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: true
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
       
       # Log configuration
       KAFKA_CFG_LOG_RETENTION_HOURS: 168
@@ -45,6 +46,8 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+
+  # Kafka UI for monitoring
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
@@ -60,25 +63,28 @@ services:
       LOGGING_LEVEL_COM_PROVECTUS: DEBUG
     networks:
       - learnlanguage-network
+
+  # SQL Server database
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sqlserver
     ports:
       - "1433:1433"
     environment:
-      SA_PASSWORD: "Test@123"
-      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "YourStrong@Passw0rd"
+      ACCEPT_EULA: "y"
       MSSQL_PID: "Express"
     volumes:
       - sqlserver_data:/var/opt/mssql
     networks:
       - learnlanguage-network
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "Test@123" -Q "SELECT 1"
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "YourStrong@Passw0rd" -Q "SELECT 1"
       interval: 30s
       timeout: 10s
       retries: 3
 
+  # LearnLanguage API service (.NET)
   learnlanguage-api:
     build:
       context: .
@@ -93,10 +99,34 @@ services:
       - "8081:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
-      - ConnectionStrings__WriteDb=Server=sqlserver,1433;Database=WriteDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;
-      - ConnectionStrings__ReadDb=Server=sqlserver,1433;Database=ReadDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;
+      - ConnectionStrings__WriteDb=Server=sqlserver,1433;Database=LearnLanguageWriteDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;
+      - ConnectionStrings__ReadDb=Server=sqlserver,1433;Database=LearnLanguageReadDb;User Id=sa;Password=YourStrong@Passw0rd;TrustServerCertificate=true;
       - KafkaSettings__BootstrapServers=kafka:9092
       - KafkaSettings__Enabled=true
+      - HuggingFace__ApiKey=${HUGGINGFACE_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+    networks:
+      - learnlanguage-network
+    restart: unless-stopped
+
+  # LearnLanguage AI services (Python/Flask)
+  learnlanguage-ai:
+    build:
+      context: ./src/LearnLanguage.AI
+      dockerfile: Dockerfile
+    container_name: learnlanguage-ai
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+    volumes:
+      - ./src/LearnLanguage.AI/audio:/app/audio
     networks:
       - learnlanguage-network
     restart: unless-stopped

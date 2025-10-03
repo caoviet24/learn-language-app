@@ -1,11 +1,10 @@
-import axiosJWT from "@/configs/axios";
-
-
+import axiosJWT from '@/configs/axios';
 
 async function getAll(pageNumber: number, pageSize: number, searchTerm: string) {
-    const res = await axiosJWT.get(`/user/get-all?pageNumber=${pageNumber}&pageSize=${pageSize}&searchTerm=${searchTerm}`);
+    const res = await axiosJWT.get(
+        `/user/get-all?pageNumber=${pageNumber}&pageSize=${pageSize}&searchTerm=${searchTerm}`,
+    );
     return res.data;
-
 }
 
 async function remove(userId: string) {
@@ -13,11 +12,7 @@ async function remove(userId: string) {
     return res.data;
 }
 
-async function update({
-    userId,
-    firstName,
-    lastName,
-}: { userId: string; firstName: string; lastName: string }) {
+async function update({ userId, firstName, lastName }: { userId: string; firstName: string; lastName: string }) {
     try {
         const res = await axiosJWT.put(`/user/update`, {
             id: userId,
@@ -26,14 +21,22 @@ async function update({
         });
         return res.data;
     } catch (error) {
-        console.error("Error updating user:", error);
+        console.error('Error updating user:', error);
         throw error;
     }
 }
 
+async function createActivity({ language, studyTimeEveryday }: { language: string; studyTimeEveryday: number }) {
+    const res = await axiosJWT.post(`/useractivity/create`, {
+        languageStudying: language,
+        studyTimeEveryday,
+    });
+    return res.data;
+}
 
 export const userService = {
     getAll,
     remove,
-    update
+    update,
+    createActivity,
 };

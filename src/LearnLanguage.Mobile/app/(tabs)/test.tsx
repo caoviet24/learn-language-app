@@ -7,22 +7,21 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
-  Linking,
-  Switch,
 } from 'react-native';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
-import { Audio } from 'expo-av';
-import { Volume2, Send, ExternalLink, RefreshCw, Play, Square, Pause, Settings } from 'lucide-react-native';
+import { createAudioPlayer, setAudioModeAsync } from 'expo-audio';
+import { Volume2, Send, RefreshCw, Play, Square, Pause } from 'lucide-react-native';
+import { baseUrl2 } from '@/configs/baseUrl';
+import { Link } from 'expo-router';
 
 export default function TestScreen() {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<any>(null);
   const [requestTime, setRequestTime] = useState<string>('');
-  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [sound, setSound] = useState<any | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackStatus, setPlaybackStatus] = useState<any>(null);
-  const [useExpoAV, setUseExpoAV] = useState(true);
 
   // Preset text examples
   const presetTexts = [
@@ -36,8 +35,8 @@ export default function TestScreen() {
   useEffect(() => {
     return sound
       ? () => {
-        console.log('Unloading Sound');
-        sound.unloadAsync();
+        console.log('Removing Sound');
+        sound.remove();
       }
       : undefined;
   }, [sound]);
@@ -53,7 +52,7 @@ export default function TestScreen() {
     const startTime = new Date();
 
     try {
-      const response = await fetch('http://localhost:5000/text-to-speech', {
+      const response = await fetch(`${baseUrl2}/text-to-speech`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -62,6 +61,8 @@ export default function TestScreen() {
           text: inputText.trim(),
         }),
       });
+
+      console.log('baseUrl2:', baseUrl2);
 
       const data = await response.json();
       const endTime = new Date();
@@ -82,10 +83,21 @@ export default function TestScreen() {
     }
   };
 
-  const playAudioWithExpoAV = async () => {
+  const playAudio = async () => {
     if (!response?.audio) return;
 
     try {
+      // If sound exists and finished playing, replay it
+      if (sound && !isPlaying) {
+        await sound.seekTo(0);
+        sound.play();
+        setIsPlaying(true);
+        return;
+      }
+
+      // If already playing, do nothing
+      if (isPlaying) return;
+
       // If there's already a sound loaded, stop and unload it
       if (sound) {
         await sound.unloadAsync();
@@ -95,26 +107,24 @@ export default function TestScreen() {
       console.log('Loading Sound from:', response.audio);
 
       // Set audio mode for playback
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,
-        staysActiveInBackground: false,
-        playsInSilentModeIOS: true,
-        shouldDuckAndroid: true,
-        playThroughEarpieceAndroid: false,
+      await setAudioModeAsync({
+        allowsRecording: false,
+        shouldPlayInBackground: false,
+        playsInSilentMode: true,
+        interruptionMode: 'mixWithOthers',
+        shouldRouteThroughEarpiece: false,
       });
 
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        { uri: response.audio },
-        { shouldPlay: true }
-      );
+      const newSound = createAudioPlayer(response.audio);
+      newSound.play();
 
       setSound(newSound);
       setIsPlaying(true);
 
       // Set up status listener
-      newSound.setOnPlaybackStatusUpdate((status: any) => {
+      newSound.addListener('playbackStatusUpdate', (status: any) => {
         setPlaybackStatus(status);
-        if (status.isLoaded && status.didJustFinish) {
+        if ('isLoaded' in status && status.isLoaded && 'didJustFinish' in status && status.didJustFinish) {
           setIsPlaying(false);
         }
       });
@@ -129,7 +139,7 @@ export default function TestScreen() {
   const pauseAudio = async () => {
     if (sound) {
       try {
-        await sound.pauseAsync();
+        sound.pause();
         setIsPlaying(false);
       } catch (error) {
         console.error('Error pausing audio:', error);
@@ -140,20 +150,10 @@ export default function TestScreen() {
   const stopAudio = async () => {
     if (sound) {
       try {
-        await sound.stopAsync();
+        sound.pause();
         setIsPlaying(false);
       } catch (error) {
         console.error('Error stopping audio:', error);
-      }
-    }
-  };
-
-  const playAudioInBrowser = async () => {
-    if (response?.audio) {
-      try {
-        await Linking.openURL(response.audio);
-      } catch (error) {
-        Alert.alert('Lỗi', 'Không thể mở URL');
       }
     }
   };
@@ -167,29 +167,11 @@ export default function TestScreen() {
     setResponse(null);
     setRequestTime('');
     if (sound) {
-      sound.unloadAsync();
+      sound.remove();
       setSound(null);
     }
     setIsPlaying(false);
     setPlaybackStatus(null);
-  };
-
-  const testDirectAccess = async () => {
-    if (response?.audio) {
-      try {
-        // Test direct access to the audio URL
-        const testResponse = await fetch(response.audio, {
-          method: 'HEAD'
-        });
-        if (testResponse.ok) {
-          Alert.alert('Kết nối thành công', 'Audio URL có thể truy cập được!');
-        } else {
-          Alert.alert('Lỗi kết nối', `HTTP Status: ${testResponse.status}`);
-        }
-      } catch (error) {
-        Alert.alert('Lỗi kết nối', 'Không thể truy cập audio URL');
-      }
-    }
   };
 
   return (
@@ -209,29 +191,6 @@ export default function TestScreen() {
           Test API chuyển đổi văn bản thành giọng nói
         </Text>
       </ExpoLinearGradient>
-
-      {/* Settings Section */}
-      <View className="mx-4 mt-6">
-        <View className="bg-white rounded-2xl p-4 shadow-lg">
-          <View className="flex-row items-center justify-between">
-            <View className="flex-row items-center">
-              <Settings size={20} color="#6b7280" />
-              <Text className="text-sm font-medium text-gray-700 ml-2">
-                Sử dụng Expo-AV để phát âm thanh
-              </Text>
-            </View>
-            <Switch
-              value={useExpoAV}
-              onValueChange={setUseExpoAV}
-              trackColor={{ false: '#d1d5db', true: '#10b981' }}
-              thumbColor={useExpoAV ? '#ffffff' : '#f3f4f6'}
-            />
-          </View>
-          <Text className="text-xs text-gray-500 mt-2">
-            {useExpoAV ? 'Phát âm thanh trực tiếp trong app' : 'Mở âm thanh trong trình duyệt'}
-          </Text>
-        </View>
-      </View>
 
       {/* Input Section */}
       <View className="mx-4 mt-6">
@@ -312,95 +271,61 @@ export default function TestScreen() {
             {/* Audio Player Controls */}
             <View className="bg-purple-50 rounded-2xl p-4 mb-4">
               <Text className="text-sm font-medium text-purple-800 mb-3">
-                🎵 {useExpoAV ? 'Expo-AV Audio Player' : 'Browser Audio Player'}
+                🎵 Audio Player
               </Text>
 
-              {useExpoAV ? (
-                // Expo-AV Controls
-                <>
-                  <View className="flex-row space-x-3 mb-3">
-                    <TouchableOpacity
-                      onPress={playAudioWithExpoAV}
-                      disabled={!response.audio || isPlaying}
-                      className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${!response.audio || isPlaying ? 'bg-gray-300' : 'bg-green-500'
-                        }`}
-                    >
-                      <Play size={20} color={!response.audio || isPlaying ? '#9ca3af' : 'white'} />
-                      <Text className={`font-semibold ml-2 ${!response.audio || isPlaying ? 'text-gray-500' : 'text-white'
-                        }`}>
-                        Phát
-                      </Text>
-                    </TouchableOpacity>
+              <View className="flex-row space-x-3 mb-3">
+                <TouchableOpacity
+                  onPress={playAudio}
+                  disabled={!response.audio || isPlaying}
+                  className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${!response.audio || isPlaying ? 'bg-gray-300' : 'bg-green-500'
+                    }`}
+                >
+                  <Play size={20} color={!response.audio || isPlaying ? '#9ca3af' : 'white'} />
+                  <Text className={`font-semibold ml-2 ${!response.audio || isPlaying ? 'text-gray-500' : 'text-white'
+                    }`}>
+                    Phát
+                  </Text>
+                </TouchableOpacity>
 
-                    <TouchableOpacity
-                      onPress={pauseAudio}
-                      disabled={!isPlaying}
-                      className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${!isPlaying ? 'bg-gray-300' : 'bg-yellow-500'
-                        }`}
-                    >
-                      <Pause size={20} color={!isPlaying ? '#9ca3af' : 'white'} />
-                      <Text className={`font-semibold ml-2 ${!isPlaying ? 'text-gray-500' : 'text-white'
-                        }`}>
-                        Tạm dừng
-                      </Text>
-                    </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={pauseAudio}
+                  disabled={!isPlaying}
+                  className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${!isPlaying ? 'bg-gray-300' : 'bg-yellow-500'
+                    }`}
+                >
+                  <Pause size={20} color={!isPlaying ? '#9ca3af' : 'white'} />
+                  <Text className={`font-semibold ml-2 ${!isPlaying ? 'text-gray-500' : 'text-white'
+                    }`}>
+                    Tạm dừng
+                  </Text>
+                </TouchableOpacity>
 
-                    <TouchableOpacity
-                      onPress={stopAudio}
-                      disabled={!sound}
-                      className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${!sound ? 'bg-gray-300' : 'bg-red-500'
-                        }`}
-                    >
-                      <Square size={20} color={!sound ? '#9ca3af' : 'white'} />
-                      <Text className={`font-semibold ml-2 ${!sound ? 'text-gray-500' : 'text-white'
-                        }`}>
-                        Dừng
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                <TouchableOpacity
+                  onPress={stopAudio}
+                  disabled={!sound}
+                  className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${!sound ? 'bg-gray-300' : 'bg-red-500'
+                    }`}
+                >
+                  <Square size={20} color={!sound ? '#9ca3af' : 'white'} />
+                  <Text className={`font-semibold ml-2 ${!sound ? 'text-gray-500' : 'text-white'
+                    }`}>
+                    Dừng
+                  </Text>
+                </TouchableOpacity>
+              </View>
 
-                  {/* Playback Status */}
-                  {playbackStatus && playbackStatus.isLoaded && (
-                    <View className="bg-white rounded-lg p-3">
-                      <Text className="text-xs text-gray-600">
-                        Trạng thái: {isPlaying ? '▶️ Đang phát' : '⏸️ Đã tạm dừng'}
-                      </Text>
-                      {playbackStatus.durationMillis && (
-                        <Text className="text-xs text-gray-600">
-                          Thời lượng: {Math.round(playbackStatus.durationMillis / 1000)}s
-                        </Text>
-                      )}
-                    </View>
+              {/* Playback Status */}
+              {playbackStatus && playbackStatus.isLoaded && (
+                <View className="bg-white rounded-lg p-3">
+                  <Text className="text-xs text-gray-600">
+                    Trạng thái: {isPlaying ? '▶️ Đang phát' : '⏸️ Đã tạm dừng'}
+                  </Text>
+                  {playbackStatus.durationMillis && (
+                    <Text className="text-xs text-gray-600">
+                      Thời lượng: {Math.round(playbackStatus.durationMillis / 1000)}s
+                    </Text>
                   )}
-                </>
-              ) : (
-                // Browser Controls
-                <View className="flex-row space-x-3">
-                  <TouchableOpacity
-                    onPress={playAudioInBrowser}
-                    disabled={!response.audio}
-                    className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${!response.audio ? 'bg-gray-300' : 'bg-green-500'
-                      }`}
-                  >
-                    <Play size={20} color={!response.audio ? '#9ca3af' : 'white'} />
-                    <Text className={`font-semibold ml-2 ${!response.audio ? 'text-gray-500' : 'text-white'
-                      }`}>
-                      Mở trong trình duyệt
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    onPress={testDirectAccess}
-                    disabled={!response.audio}
-                    className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${!response.audio ? 'bg-gray-300' : 'bg-blue-500'
-                      }`}
-                  >
-                    <Square size={20} color={!response.audio ? '#9ca3af' : 'white'} />
-                    <Text className={`font-semibold ml-2 ${!response.audio ? 'text-gray-500' : 'text-white'
-                      }`}>
-                      Test URL
-                    </Text>
-                  </TouchableOpacity>
                 </View>
               )}
             </View>
@@ -410,17 +335,13 @@ export default function TestScreen() {
               <Text className="text-sm font-medium text-green-800 mb-2">
                 Audio URL được tạo:
               </Text>
-              <TouchableOpacity
-                onPress={() => Linking.openURL(response.audio)}
-                className="bg-white rounded-lg p-3 border border-green-200 flex-row items-center"
-              >
-                <Text className="text-sm text-green-700 flex-1" numberOfLines={3}>
+              <View className="bg-white rounded-lg p-3 border border-green-200">
+                <Text className="text-sm text-green-700" numberOfLines={3}>
                   {response.audio}
                 </Text>
-                <ExternalLink size={16} color="#16a34a" className="ml-2" />
-              </TouchableOpacity>
+              </View>
               <Text className="text-xs text-green-600 mt-2">
-                Nhấn để mở URL hoặc sử dụng trình phát ở trên
+                Sử dụng trình phát ở trên để nghe âm thanh
               </Text>
             </View>
 
@@ -433,13 +354,21 @@ export default function TestScreen() {
                 </Text>
               </View>
               <Text className="text-xs text-yellow-700 mt-2">
-                Server đã tạo file âm thanh và trả về URL có protocol hoàn chỉnh.
-                Âm thanh có thể phát {useExpoAV ? 'trực tiếp trong app bằng Expo-AV' : 'trong trình duyệt'}.
+                Server đã tạo file âm thanh và trả về URL. 
+                Âm thanh được phát trực tiếp trong app bằng Expo Audio.
               </Text>
             </View>
           </View>
         </View>
       )}
+
+      <View className="mx-4 my-6">
+        <Link href="/talk-with-bot">
+          <Text className="text-blue-600 text-base font-medium text-center">
+            ← Quay lại trang chủ
+          </Text>
+        </Link>
+      </View>
 
     </ScrollView>
   );

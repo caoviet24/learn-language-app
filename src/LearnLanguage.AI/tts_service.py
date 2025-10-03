@@ -12,9 +12,8 @@ class TextToSpeechService:
         self.model = SpeechT5ForTextToSpeech.from_pretrained("microsoft/speecht5_tts")
         self.vocoder = SpeechT5HifiGan.from_pretrained("microsoft/speecht5_hifigan")
         
-        # Get project root directory and ensure audio directory exists
-        self.project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.audio_dir = os.path.join(self.project_root, "audio")
+        # Set audio directory to AI/audio and ensure it exists
+        self.audio_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "audio")
         os.makedirs(self.audio_dir, exist_ok=True)
         
     def generate_speech(self, text: str) -> bytes:

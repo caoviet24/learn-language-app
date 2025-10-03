@@ -6,7 +6,6 @@ import questionService from "@/services/question-service";
 import { useMutation } from "@tanstack/react-query";
 import React, { useState, useEffect, useRef } from "react";
 import { View, TouchableOpacity, Text, ScrollView, Animated, Dimensions } from "react-native";
-import DropDownPicker from "react-native-dropdown-picker";
 import MultipleChoiceLesson from "@/components/lessons/MutilpleChoice";
 import NotebookDialog from "@/components/NotebookDialog";
 import LottieView from "lottie-react-native";
@@ -46,22 +45,60 @@ const randomTopics = [
   "Entertainment"
 ];
 
-export default function LessonScreen() {
-  const [inputValue, setInputValue] = useState<string>("");
-  const [selectedTopic, setSelectedTopic] = useState<string>("");
-  const [fillValue, setFillValue] = useState<string>("");
-  const [showNotebook, setShowNotebook] = useState<boolean>(false);
+type LessonScreenProps = {
+  params?: {
+    questionData?: string;
+    questionType?: string;
+    language_in?: string;
+    language_out?: string;
+  };
+};
 
-  // States for lesson management
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
-  const [questions, setQuestions] = useState<any[]>([]);
-  const [isLessonStarted, setIsLessonStarted] = useState<boolean>(false);
-  const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
-  const [userAnswer, setUserAnswer] = useState<string>("");
-  const [showResult, setShowResult] = useState<boolean>(false);
-  const [correctAnswersCount, setCorrectAnswersCount] = useState<number>(0);
-  // Loading state for translation questions
-  const [isCheckingTranslation, setIsCheckingTranslation] = useState<boolean>(false);
+export default function LessonScreen({ params }: LessonScreenProps) {
+    const [inputValue, setInputValue] = useState<string>("");
+    const [selectedTopic, setSelectedTopic] = useState<string>("");
+    const [fillValue, setFillValue] = useState<string>("");
+    const [showNotebook, setShowNotebook] = useState<boolean>(false);
+
+    // States for lesson management
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
+    const [questions, setQuestions] = useState<any[]>([]);
+    const [isLessonStarted, setIsLessonStarted] = useState<boolean>(false);
+    const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
+    const [userAnswer, setUserAnswer] = useState<string>("");
+    const [showResult, setShowResult] = useState<boolean>(false);
+    const [correctAnswersCount, setCorrectAnswersCount] = useState<number>(0);
+    // Loading state for translation questions
+    const [isCheckingTranslation, setIsCheckingTranslation] = useState<boolean>(false);
+
+    // Initialize lesson with passed parameters if available
+    useEffect(() => {
+        if (params?.questionData) {
+            try {
+                const questionData = JSON.parse(params.questionData);
+                const questionType = params.questionType || 'translation';
+                
+                // Set up the lesson with the passed question
+                setQuestions([{
+                    ...questionData,
+                    questionType,
+                    index: 0
+                }]);
+                
+                // Set the lesson as started
+                setIsLessonStarted(true);
+                setCurrentQuestionIndex(0);
+                setCorrectAnswersCount(0);
+                
+                // Set the topic if available in the question data
+                if (questionData.topic) {
+                    setSelectedTopic(questionData.topic);
+                }
+            } catch (error) {
+                console.error('Error parsing question data:', error);
+            }
+        }
+    }, [params]);
 
   // Animation references
   // Remove animation references as user doesn't want animation

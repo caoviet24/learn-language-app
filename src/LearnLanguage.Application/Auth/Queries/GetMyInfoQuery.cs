@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LearnLanguage.Application.Common.Sercurity;
+using LearnLanguage.Application.UserActivities.DTOs;
 using MediatR;
 
 namespace LearnLanguage.Application.Auth.Queries
@@ -21,5 +22,6 @@ namespace LearnLanguage.Application.Auth.Queries
         public string avatar { get; set; } = null!;
         public string firstName { get; set; } = null!;
         public string lastName { get; set; } = null!;
+        public List<UserActivityDTO> userActivities { get; set; } = new List<UserActivityDTO>();
     }
 }

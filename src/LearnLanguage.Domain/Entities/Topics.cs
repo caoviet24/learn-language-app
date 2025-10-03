@@ -11,6 +11,7 @@ namespace LearnLanguage.Domain.Entities
         public string name { get; set; } = null!;
         public string description { get; set; } = null!;
         public virtual User user { get; set; } = null!;
+        public virtual ICollection<Word> words { get; set; } = new List<Word>();
         public virtual ICollection<Lessons> lessons { get; set; } = new List<Lessons>();
     }
 }

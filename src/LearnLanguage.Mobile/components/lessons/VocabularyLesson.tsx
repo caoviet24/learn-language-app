@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, Animated } from 'react-native';
+import SentenceWithVoice from '@/components/SentenceWithVoice';
 
 interface VocabularyLessonProps {
   vocabularyData: {
@@ -173,9 +174,9 @@ const VocabularyLesson: React.FC<VocabularyLessonProps> = ({
 
   return (
     <View className="flex-1 p-4 bg-slate-900">
-      <Text className="text-white text-2xl font-bold mb-6 text-center">
-        {vocabularyData.question}
-      </Text>
+      <View className="mb-6">
+        <SentenceWithVoice sentence={vocabularyData.question} />
+      </View>
 
       <View className="flex-row justify-between mb-4">
         {/* English Words Column */}
@@ -242,7 +243,7 @@ const VocabularyLesson: React.FC<VocabularyLessonProps> = ({
       {/* Progress and Instructions */}
       <View className="mt-8">
         {showResult ? (
-          <Text className="text-center text-lg font-bold text-green-400">
+          <Text className="text-center text-lg font-bold text-green-40">
             🎉 Excellent! All matches are correct!
           </Text>
         ) : getTotalMatches() > 0 ? (

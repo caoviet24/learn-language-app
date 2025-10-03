@@ -11,9 +11,11 @@ namespace LearnLanguage.Domain.Entities
         public int exp { get; set; }
         public string level { get; set; } = null!;
         public int streakDay { get; set; }
-        public int studyTime { get; set; }
-        public int totalWords { get; set; }
-        public bool isCompleted { get; set; }
+        public int studyTimeToday { get; set; }
+        public int studyTimeEveryday { get; set; }
+        public int totalStudyTime { get; set; }
+        public string languageStudying { get; set; } = null!;
+        public int totalLessons { get; set; }
         public virtual User user { get; set; } = null!;
 
     }

@@ -16,6 +16,6 @@ namespace LearnLanguage.Domain.Entities
         public virtual Topics topic { get; set; } = null!;
         public virtual Levels level { get; set; } = null!;
         public virtual User user { get; set; } = null!;
-        public virtual ICollection<Excercises> excercises { get; set; } = new List<Excercises>();
+        public virtual ICollection<Word> words { get; set; } = new List<Word>();
     }
 }
