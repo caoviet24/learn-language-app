@@ -62,16 +62,16 @@ public class RegisterCommandHandler(
         await cacheService.SetAsync(email.Value, newUser, TimeSpan.FromSeconds(10), cancellationToken);
 
 
-        // var userRegisteredEvent = new UserRegisteredEvent(
-        //     newUserRecord.Entity.Id,
-        //     newUserRecord.Entity.email,
-        //     newUserRecord.Entity.password,
-        //     newUserRecord.Entity.firstName,
-        //     newUserRecord.Entity.lastName,
-        //     newUserRecord.Entity.role
-        // );
+        var userRegisteredEvent = new UserRegisteredEvent(
+            newUserRecord.Entity.Id,
+            newUserRecord.Entity.email,
+            newUserRecord.Entity.password,
+            newUserRecord.Entity.firstName,
+            newUserRecord.Entity.lastName,
+            newUserRecord.Entity.role
+        );
 
-        // await eventPublisher.PublishAsync(userRegisteredEvent, cancellationToken);
+        await eventPublisher.PublishAsync(userRegisteredEvent, cancellationToken);
 
 
         return new ResponseDTO<RegisterResponse>

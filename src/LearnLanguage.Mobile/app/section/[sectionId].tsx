@@ -11,7 +11,6 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import LingoMascot from '../../components/LingoMasco';
 
 const { height } = Dimensions.get('window');
 
@@ -303,41 +302,7 @@ export default function SectionScreen({
         );
     };
 
-    const renderMascot = () => {
-        try {
-            return (
-                <Animated.View style={{
-                    position: 'absolute',
-                    right: 20,
-                    top: 150,
-                    zIndex: 10,
-                    opacity: progressAnimation,
-                    transform: [{ scale: progressAnimation }],
-                }}>
-                    <LingoMascot size={100} />
-                </Animated.View>
-            );
-        } catch (error) {
-            console.warn('LingoMascot failed to render:', error);
-            return (
-                <View style={{
-                    position: 'absolute',
-                    right: 20,
-                    top: 150,
-                    zIndex: 10,
-                    width: 80,
-                    height: 100,
-                    backgroundColor: '#10B981',
-                    borderRadius: 20,
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                    <Ionicons name="happy" size={40} color="white" />
-                </View>
-            );
-        }
-    };
-
+ 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: '#111827' }}>
             <LinearGradient

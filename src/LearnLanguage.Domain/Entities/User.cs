@@ -18,7 +18,6 @@ public class User : BaseAuditableEntity
     public virtual ICollection<Lessons> lessons { get; set; } = new List<Lessons>();
     public virtual ICollection<Levels> levels { get; set; } = new List<Levels>();
     public virtual ICollection<UserActivity> userActivities { get; set; } = new List<UserActivity>();
-
     public User()
     {
 

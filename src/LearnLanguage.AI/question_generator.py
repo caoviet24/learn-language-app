@@ -4,7 +4,7 @@ import os
 from huggingface_hub import InferenceClient
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+
 load_dotenv()
 
 client = OpenAI(
@@ -12,10 +12,6 @@ client = OpenAI(
   api_key=os.getenv("OPENROUTER_API_KEY"),
 )
 
-clientHF = InferenceClient(
-    provider="hf-inference",
-    api_key=os.getenv("HUGGINGFACE_API_KEY"),
-)
 
 
 def generate_question(word: str = None, qtype: str = None, topic: str = None, previous_question: str = None, language_in: str = "English", language_out: str = "Vietnamese"):

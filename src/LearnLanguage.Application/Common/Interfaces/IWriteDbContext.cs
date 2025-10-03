@@ -16,10 +16,7 @@ namespace LearnLanguage.Application.Common.Interfaces
         public DbSet<Topics> Topics { get; set; }
         public DbSet<Lessons> Lessons { get; set; }
         public DbSet<Levels> Levels { get; set; }
-        public DbSet<Excercises> Excercises { get; set; }
-        public DbSet<ExcerciseTrueFalse> ExcerciseTrueFalses { get; set; }
-        public DbSet<ExcersiteFillBlank> ExcersiteFillBlanks { get; set; }
-        public DbSet<ExcerciseMatch> ExcerciseMatches { get; set; }
+        public DbSet<Word> Words { get; set; }
 
         DatabaseFacade Database { get; }
         EntityEntry<TEntity> Entry<TEntity>(TEntity entity) where TEntity : class;

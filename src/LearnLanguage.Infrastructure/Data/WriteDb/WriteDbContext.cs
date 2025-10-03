@@ -12,16 +12,12 @@ namespace LearnLanguage.Infrastructure.Data.Write
 {
     public class WriteDbContext(DbContextOptions<WriteDbContext> options) : DbContext(options), IWriteDbContext
     {
-        public DbSet<User> Users { get; set; }
+         public DbSet<User> Users { get; set; }
         public DbSet<UserActivity> UserActivities { get; set; }
         public DbSet<Topics> Topics { get; set; }
         public DbSet<Lessons> Lessons { get; set; }
         public DbSet<Levels> Levels { get; set; }
-        public DbSet<Excercises> Excercises { get; set; }
-        public DbSet<ExcerciseTrueFalse> ExcerciseTrueFalses { get; set; }
-        public DbSet<ExcersiteFillBlank> ExcersiteFillBlanks { get; set; }
-        public DbSet<ExcerciseMatch> ExcerciseMatches { get; set; }
-
+        public DbSet<Word> Words { get; set; }
 
 
 
@@ -117,51 +113,24 @@ namespace LearnLanguage.Infrastructure.Data.Write
             });
 
 
-            modelBuilder.Entity<Excercises>(entity =>
+            modelBuilder.Entity<Word>(entity =>
             {
                 entity.HasKey(e => e.Id);
-                entity.Property(e => e.type)
+
+                entity.Property(e => e.text)
+                    .HasMaxLength(100)
                     .IsRequired();
 
-                entity.Property(e => e.content)
+                entity.Property(e => e.language)
+                    .HasMaxLength(50)
                     .IsRequired();
 
-                entity.HasOne(e => e.lesson)
-                    .WithMany(l => l.excercises)
-                    .HasForeignKey(e => e.lessonId)
+                entity.HasOne(e => e.topic)
+                    .WithMany(t => t.words)
+                    .HasForeignKey(e => e.topicId)
                     .OnDelete(DeleteBehavior.NoAction);
-            });
 
-            modelBuilder.Entity<ExcerciseMatch>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.HasOne(e => e.excercise)
-                    .WithMany(e => e.excerciseMatch)
-                    .HasForeignKey(e => e.excerciseId)
-                    .OnDelete(DeleteBehavior.NoAction);
-            });
-
-            modelBuilder.Entity<ExcerciseTrueFalse>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.question)
-                    .IsRequired();
-
-                entity.HasOne(e => e.excercise)
-                    .WithMany(e => e.excerciseTrueFalse)
-                    .HasForeignKey(e => e.excerciseId)
-                    .OnDelete(DeleteBehavior.NoAction);
-            });
-
-            modelBuilder.Entity<ExcersiteFillBlank>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-
-                entity.HasOne(e => e.excercise)
-                    .WithMany(e => e.excersiteFillBlanks)
-                    .HasForeignKey(e => e.excerciseId)
-                    .OnDelete(DeleteBehavior.NoAction);
+                
             });
 
 

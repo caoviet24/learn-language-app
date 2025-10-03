@@ -22,115 +22,6 @@ namespace LearnLanguage.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.ExcerciseMatch", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("excerciseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("left")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("leftMedia")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("right")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("rightMedia")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("excerciseId");
-
-                    b.ToTable("ExcerciseMatches");
-                });
-
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.ExcerciseTrueFalse", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("answers")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("excerciseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("media")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("question")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("excerciseId");
-
-                    b.ToTable("ExcerciseTrueFalses");
-                });
-
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.Excercises", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("lessonId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("order")
-                        .HasColumnType("int");
-
-                    b.Property<string>("type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("lessonId");
-
-                    b.ToTable("Excercises");
-                });
-
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.ExcersiteFillBlank", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("answer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("excerciseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("media")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("question")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("excerciseId");
-
-                    b.ToTable("ExcersiteFillBlanks");
-                });
-
             modelBuilder.Entity("LearnLanguage.Domain.Entities.Lessons", b =>
                 {
                     b.Property<string>("Id")
@@ -347,8 +238,9 @@ namespace LearnLanguage.Infrastructure.Migrations
                     b.Property<int>("exp")
                         .HasColumnType("int");
 
-                    b.Property<bool>("isCompleted")
-                        .HasColumnType("bit");
+                    b.Property<string>("languageStudying")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("level")
                         .IsRequired()
@@ -357,10 +249,16 @@ namespace LearnLanguage.Infrastructure.Migrations
                     b.Property<int>("streakDay")
                         .HasColumnType("int");
 
-                    b.Property<int>("studyTime")
+                    b.Property<int>("studyTimeEveryday")
                         .HasColumnType("int");
 
-                    b.Property<int>("totalWords")
+                    b.Property<int>("studyTimeToday")
+                        .HasColumnType("int");
+
+                    b.Property<int>("totalLessons")
+                        .HasColumnType("int");
+
+                    b.Property<int>("totalStudyTime")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("updatedAt")
@@ -376,48 +274,63 @@ namespace LearnLanguage.Infrastructure.Migrations
                     b.ToTable("UserActivities");
                 });
 
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.ExcerciseMatch", b =>
+            modelBuilder.Entity("LearnLanguage.Domain.Entities.Word", b =>
                 {
-                    b.HasOne("LearnLanguage.Domain.Entities.Excercises", "excercise")
-                        .WithMany("excerciseMatch")
-                        .HasForeignKey("excerciseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Navigation("excercise");
+                    b.Property<DateTime>("createdAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("createdBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("deletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("deletedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("language")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("text")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("topicId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("updatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("updatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("topicId");
+
+                    b.ToTable("Words");
                 });
 
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.ExcerciseTrueFalse", b =>
+            modelBuilder.Entity("LessonsWord", b =>
                 {
-                    b.HasOne("LearnLanguage.Domain.Entities.Excercises", "excercise")
-                        .WithMany("excerciseTrueFalse")
-                        .HasForeignKey("excerciseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.Property<string>("lessonsId")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Navigation("excercise");
-                });
+                    b.Property<string>("wordsId")
+                        .HasColumnType("nvarchar(450)");
 
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.Excercises", b =>
-                {
-                    b.HasOne("LearnLanguage.Domain.Entities.Lessons", "lesson")
-                        .WithMany("excercises")
-                        .HasForeignKey("lessonId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.HasKey("lessonsId", "wordsId");
 
-                    b.Navigation("lesson");
-                });
+                    b.HasIndex("wordsId");
 
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.ExcersiteFillBlank", b =>
-                {
-                    b.HasOne("LearnLanguage.Domain.Entities.Excercises", "excercise")
-                        .WithMany("excersiteFillBlanks")
-                        .HasForeignKey("excerciseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("excercise");
+                    b.ToTable("LessonsWord");
                 });
 
             modelBuilder.Entity("LearnLanguage.Domain.Entities.Lessons", b =>
@@ -476,23 +389,37 @@ namespace LearnLanguage.Infrastructure.Migrations
                     b.Navigation("user");
                 });
 
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.Excercises", b =>
+            modelBuilder.Entity("LearnLanguage.Domain.Entities.Word", b =>
                 {
-                    b.Navigation("excerciseMatch");
+                    b.HasOne("LearnLanguage.Domain.Entities.Topics", "topic")
+                        .WithMany("words")
+                        .HasForeignKey("topicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("excerciseTrueFalse");
-
-                    b.Navigation("excersiteFillBlanks");
+                    b.Navigation("topic");
                 });
 
-            modelBuilder.Entity("LearnLanguage.Domain.Entities.Lessons", b =>
+            modelBuilder.Entity("LessonsWord", b =>
                 {
-                    b.Navigation("excercises");
+                    b.HasOne("LearnLanguage.Domain.Entities.Lessons", null)
+                        .WithMany()
+                        .HasForeignKey("lessonsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("LearnLanguage.Domain.Entities.Word", null)
+                        .WithMany()
+                        .HasForeignKey("wordsId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("LearnLanguage.Domain.Entities.Topics", b =>
                 {
                     b.Navigation("lessons");
+
+                    b.Navigation("words");
                 });
 
             modelBuilder.Entity("LearnLanguage.Domain.Entities.User", b =>

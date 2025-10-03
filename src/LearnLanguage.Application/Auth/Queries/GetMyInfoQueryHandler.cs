@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LearnLanguage.Application.Common.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace LearnLanguage.Application.Auth.Queries
@@ -26,7 +27,10 @@ namespace LearnLanguage.Application.Auth.Queries
 
             logger.LogInformation("Fetching user info for user ID: {UserId}", userId);
 
-            var userEntity = readDbContext.Users.FirstOrDefault(u => u.Id == userId);
+            var userEntity = readDbContext.Users
+                .Include(u => u.userActivities)
+                .FirstOrDefault(u => u.Id == userId);
+            
             if (userEntity == null)
             {
                 throw new KeyNotFoundException("User not found.");

@@ -6,6 +6,8 @@ using AutoMapper;
 using LearnLanguage.Application.Auth.Commands.Register;
 using LearnLanguage.Application.Auth.Queries;
 using LearnLanguage.Application.Topic.Commands;
+using LearnLanguage.Application.UserActivities.Commands.Create;
+using LearnLanguage.Application.UserActivities.DTOs;
 using LearnLanguage.Application.Users.Commands.Update;
 using LearnLanguage.Application.Users.Queries.GetAll;
 using LearnLanguage.Domain.Constants;
@@ -33,13 +35,32 @@ namespace LearnLanguage.Application.Common.Mapping
                 })
                 .ReverseMap();
             CreateMap<User, RegisterResponse>();
-            CreateMap<User, GetMyInfoDto>();
+            CreateMap<User, GetMyInfoDto>()
+                .ForMember(dest => dest.userActivities, opt => opt.MapFrom(src => src.userActivities))
+                .ReverseMap();
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<UpdateUserCommand, User>().ReverseMap();
 
 
             CreateMap<Topics, TopicDto>().ReverseMap();
             CreateMap<CreateTopicCommand, Topics>();
+
+
+            CreateMap<CreateUserActivityCommand, UserActivity>()
+                .ConstructUsing(src => new UserActivity
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    exp = 0,
+                    level = "Beginner",
+                    streakDay = 0,
+                    studyTimeToday = 0,
+                    studyTimeEveryday = src.studyTimeEveryday,
+                    totalStudyTime = 0,
+                    languageStudying = src.languageStudying,
+                    totalLessons = 0
+                })
+                .ReverseMap();
+            CreateMap<UserActivity, UserActivityDTO>().ReverseMap();
 
 
         }

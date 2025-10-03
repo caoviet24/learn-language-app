@@ -9,7 +9,7 @@ namespace LearnLanguage.API
     {
         public static IServiceCollection AddApi(this IServiceCollection services, IConfiguration configuration)
         {
-        
+
             services.AddOpenApiDocument(config =>
             {
                 config.Title = "Learn Language API";
@@ -29,6 +29,8 @@ namespace LearnLanguage.API
                     new NSwag.Generation.Processors.Security.AspNetCoreOperationSecurityScopeProcessor("JWT")
                 );
             });
+            
+            
 
             services.AddControllers();
             services.AddEndpointsApiExplorer();

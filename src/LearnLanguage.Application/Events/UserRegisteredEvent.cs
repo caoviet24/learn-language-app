@@ -7,7 +7,7 @@ namespace LearnLanguage.Application.Events
 {
     public class UserRegisteredEvent
     {
-        public const string EventName = nameof(UserRegisteredEvent);
+        public const string EventName = "UserRegisteredEvent";
         public string userId { get; }
         public string email { get; }
         public string password { get; }

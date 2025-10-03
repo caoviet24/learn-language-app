@@ -7,10 +7,16 @@ COPY src/LearnLanguage.Domain/*.csproj ./src/LearnLanguage.Domain/
 COPY src/LearnLanguage.Application/*.csproj ./src/LearnLanguage.Application/
 COPY src/LearnLanguage.Infrastructure/*.csproj ./src/LearnLanguage.Infrastructure/
 COPY src/LearnLanguage.API/*.csproj ./src/LearnLanguage.API/
-COPY *.sln ./
+
+# Create a solution file that only includes the main projects (not tests)
+RUN dotnet new sln -n LearnLanguage
+RUN dotnet sln LearnLanguage.sln add ./src/LearnLanguage.Domain/LearnLanguage.Domain.csproj
+RUN dotnet sln LearnLanguage.sln add ./src/LearnLanguage.Application/LearnLanguage.Application.csproj
+RUN dotnet sln LearnLanguage.sln add ./src/LearnLanguage.Infrastructure/LearnLanguage.Infrastructure.csproj
+RUN dotnet sln LearnLanguage.sln add ./src/LearnLanguage.API/LearnLanguage.API.csproj
 
 # Restore dependencies
-RUN dotnet restore
+RUN dotnet restore LearnLanguage.sln
 
 # Copy everything else and build
 COPY . ./

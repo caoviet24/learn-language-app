@@ -10,6 +10,7 @@ using LearnLanguage.Application.Auth.Commands.Login;
 using LearnLanguage.API.Infrastructure;
 using LearnLanguage.API;
 using LearnLanguage.API.Middlewares;
+using MassTransit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,12 +18,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Override HuggingFace API key from environment variable if available
-var huggingFaceApiKey = Environment.GetEnvironmentVariable("HUGGINGFACE_API_KEY");
-if (!string.IsNullOrEmpty(huggingFaceApiKey))
-{
-    builder.Configuration["HuggingFace:ApiKey"] = huggingFaceApiKey;
-}
 
 builder.Services.AddApi(builder.Configuration);
 
@@ -32,14 +27,17 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins, policy =>
     {
-
         policy.AllowAnyOrigin()
-      .AllowAnyHeader()
-      .AllowAnyMethod();
+                .AllowAnyHeader()
+                .AllowAnyMethod();
 
     });
 });
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5140); 
+});
 
 
 
@@ -73,5 +71,6 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty; // Serve Swagger UI at the root
     });
 }
+
 
 app.Run();
